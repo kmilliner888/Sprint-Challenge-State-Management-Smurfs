@@ -1,16 +1,80 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, createContext } from "react";
+import axios from 'axios';
 import "./App.css";
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <h1>SMURFS! 2.0 W/ Redux</h1>
-        <div>Welcome to your state management version of Smurfs!</div>
-        <div>Start inside of your `src/index.js` file!</div>
-        <div>Have fun!</div>
-      </div>
-    );
+
+import SmurfVillage from './SmurfVillage';
+
+export const smurfContext = createContext();
+
+const App = () => {
+  const [smurf, setSmurf] = useState([]);
+  const [newSmurf, setNewSmurf] = useState("");
+
+  useEffect(() => {
+    axios.get('http://localhost:3333/smurfs')
+    .then(response => {
+      // console.log("response", response)
+      setSmurf(response.data)
+    })
+    .catch(error => {
+      console.log("error", error);
+    });
+  }, []);
+  
+
+  // const addSmurf = item => {
+  //   setSmurf(item)
+  // };
+
+  const handleChanges = e => {
+    setNewSmurf({...smurf, [e.target.name]:e.target.value})
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    setSmurf({newSmurf});
   }
-}
+
+  const clearForm = e => {
+    e.preventDefault();
+    setNewSmurf("");
+  };
+  
+  
+  return (
+    <div className="App">
+      <h1>SMURF VILLAGE</h1>
+      <div>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={newSmurf.name}
+            onChange={handleChanges}
+          />
+          <input
+            type="text"
+            name="age"
+            placeholder="Age"
+            value={newSmurf.age}
+            onChange={handleChanges}
+          />
+          <input 
+            type="text"
+            name="height"
+            placeholder="Height"
+            value={newSmurf.height}
+            onChange={handleChanges}
+          />
+          <button type="submit">Add Smurf</button>
+        </form>
+      </div>
+      <smurfContext.Provider value={{smurf}}>
+        <SmurfVillage />
+      </smurfContext.Provider>
+    </div>
+  );
+};
 
 export default App;
