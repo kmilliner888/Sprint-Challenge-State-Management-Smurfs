@@ -3,12 +3,17 @@ import axios from 'axios';
 import "./App.css";
 
 import SmurfVillage from './SmurfVillage';
+import SmurfForm from './SmurfForm';
 
 export const smurfContext = createContext();
 
 const App = () => {
   const [smurf, setSmurf] = useState([]);
-  const [newSmurf, setNewSmurf] = useState("");
+  const [newSmurf, setNewSmurf] = useState({
+    name: "",
+    age: "",
+    height: ""
+  });
 
   useEffect(() => {
     axios.get('http://localhost:3333/smurfs')
@@ -20,57 +25,41 @@ const App = () => {
       console.log("error", error);
     });
   }, []);
-  
 
-  // const addSmurf = item => {
-  //   setSmurf(item)
-  // };
+  const addSmurf = newbie => {
+    const newbieSmurf = {
+      name: newbie.name,
+      age: newbie.age,
+      height: newbie.height,
+      id: Date.now()
+    };
+    setSmurf([...smurf, newbieSmurf])
+  };
 
   const handleChanges = e => {
-    setNewSmurf({...smurf, [e.target.name]:e.target.value})
+    setNewSmurf({...newSmurf, [e.target.name]: e.target.value})
   };
+
 
   const handleSubmit = e => {
-    e.preventDefault();
-    setSmurf({newSmurf});
-  }
-
-  const clearForm = e => {
-    e.preventDefault();
-    setNewSmurf("");
+    axios.post('http://localhost:3333/smurfs', newSmurf)
+      .then(response => {
+        console.log("response", response.data);
+        e.preventDefault();
+        addSmurf(newSmurf);
+        setNewSmurf({name: "", age: "", height: ""});
+      })
+      .catch(error => {
+        console.log("error", error);
+      })
   };
-  
   
   return (
     <div className="App">
       <h1>SMURF VILLAGE</h1>
-      <div>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={newSmurf.name}
-            onChange={handleChanges}
-          />
-          <input
-            type="text"
-            name="age"
-            placeholder="Age"
-            value={newSmurf.age}
-            onChange={handleChanges}
-          />
-          <input 
-            type="text"
-            name="height"
-            placeholder="Height"
-            value={newSmurf.height}
-            onChange={handleChanges}
-          />
-          <button type="submit">Add Smurf</button>
-        </form>
-      </div>
-      <smurfContext.Provider value={{smurf}}>
+        
+      <smurfContext.Provider value={{smurf, addSmurf, newSmurf, handleChanges, handleSubmit}}>
+        <SmurfForm />
         <SmurfVillage />
       </smurfContext.Provider>
     </div>

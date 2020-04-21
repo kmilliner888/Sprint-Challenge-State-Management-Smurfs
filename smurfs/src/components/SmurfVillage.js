@@ -5,6 +5,7 @@ import Smurf from './Smurf';
 const SmurfVillage = () => {
     const {smurf} = useContext(smurfContext);
     console.log("SmurfVillage smurf", smurf);
+
     return (
         <div>
             <h1>Welcome!</h1>
@@ -12,12 +13,12 @@ const SmurfVillage = () => {
                 {smurf.map(smurf => (
                     <Smurf
                         key={smurf.id}
-                        smurf={smurf}
+                        name={smurf.name}
+                        age={smurf.age}
+                        height={smurf.height}
                     />
                 ))}
             </div>
-
-
         </div>
     )
 };
